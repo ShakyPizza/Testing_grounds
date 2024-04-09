@@ -19,5 +19,4 @@ void loop() {
   delay(200);                       // wait for a second
 }
 
-
-/prufa/
+//prufa
