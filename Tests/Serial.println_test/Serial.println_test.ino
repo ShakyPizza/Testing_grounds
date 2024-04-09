@@ -1,17 +1,20 @@
-int incomingByte = 0; // for incoming serial data
+/*
+* LAB: 3
+* Name: ESP32 String + Variable Serial Print
+* Author: Khaled Magdy
+* For More Info Visit: www.DeepBlueMbedded.com
+*/
  
-void setup() {
-  Serial.begin(115200); // opens serial port, sets data rate to 115200 bps
+int Counter = 0;
+ 
+void setup()
+{
+  Serial.begin(115200);
 }
  
-void loop() {
-  // send data only when you receive data:
-  if (Serial.available() > 0) {
-    // read the incoming byte:
-    incomingByte = Serial.read();
- 
-    // say what you got:
-    Serial.print("ESP32 received: ");
-    Serial.println(incomingByte);
-  }
+void loop()
+{
+  Serial.print("Counter Value = ");
+  Serial.println(Counter++);
+  delay(1000);
 }
