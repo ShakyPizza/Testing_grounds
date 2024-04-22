@@ -43,7 +43,7 @@ int main() {
             return 1; // Loka forriti með villukóða 1
     }
 
-    std::cout << "utkoma: " << utkoma << std::endl;
+    std::cout << "Útkoma: " << utkoma << std::endl;
     return 0; // Success
 }
 
