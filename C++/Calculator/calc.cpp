@@ -1,9 +1,11 @@
 #include <iostream>
 
+using namespace std;
 
 //Function declaration
-double plus(double x, double y);
-double minus(double x, double y);
+
+double samlagning(double x, double y);
+double fradrattur(double x, double y);
 double margfalda(double x, double y);
 double deila(double x, double y);
 
@@ -13,19 +15,19 @@ int main() {
     char adgerd;
     double utkoma;
 
-    std::cout << "Skrifaðu fyrstu töluna: ";
-    std::cin >> num1;
-    std::cout << "Skrifaðu seinni töluna: ";
-    std::cin >> num2;
-    std::cout << "Veldu aðgerð (+, -, *, /)";
-    std::cin >> adgerd;
+    cout << "Skrifaðu fyrstu töluna: ";
+    cin >> num1;
+    cout << "Skrifaðu seinni töluna: ";
+    cin >> num2;
+    cout << "Veldu aðgerð (+, -, *, /)";
+    cin >> adgerd;
 
     switch (adgerd) {
         case '+':
-            utkoma = plus(num1, num2);
+            utkoma = samlagning(num1, num2);
             break;
         case '-':
-            utkoma = minus(num1, num2);
+            utkoma = fradrattur(num1, num2);
             break;
         case '*':
             utkoma = margfalda(num1, num2);
@@ -34,25 +36,25 @@ int main() {
             if (num2 != 0) {
                 utkoma = deila(num1, num2);
             } else {
-                std::cout << "Error: Ekki hægt að deila með 0." << std::endl;
+                cout << "Error: Ekki hægt að deila með 0." << endl;
                 return 1; // Loka forriti með villukóða 1
             }
             break;
         default:
-            std::cout << "Röng aðgerð valin." << std::endl;
+            cout << "Röng aðgerð valin." << endl;
             return 1; // Loka forriti með villukóða 1
     }
 
-    std::cout << "Útkoma: " << utkoma << std::endl;
+    cout << "Útkoma: " << utkoma << endl;
     return 0; // Success
 }
 
 // Function definitions
-double plus(double x, double y) {
+double samlagning(double x, double y) {
     return x + y;
 }
 
-double minus(double x, double y) {
+double fradrattur(double x, double y) {
     return x - y;
 }
 
