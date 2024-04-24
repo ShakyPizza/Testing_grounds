@@ -3,21 +3,19 @@
 
 using namespace std;
 
-//Function declaration
-
+//Declarations
 double eydsla(double x, double y);
 double kostnadur(double x, double y);
 
-
 int main() {
-    double Kwh, length, kostnadurPerKwh;
+    double Kwh, drægni, kostnadurPerKwh;
     char val;
     double utkoma;
 
     cout << "Hve stórt er batteríið í Kwh? ";
     cin >> Kwh;
     cout << "Hve langt kemstu á fullri hleðslu? ";
-    cin >> length;
+    cin >> drægni;
     cout << endl;
     cout << "Veldu aðgerð:" << endl;
     cout << endl;
@@ -25,10 +23,9 @@ int main() {
     cout << "2. Fyrir kostnaðarútreikning fyrir hleðslu. " << endl;
     cin >> val;
 
-
     switch (val) {
         case '1':
-            utkoma = eydsla(Kwh, length);
+            utkoma = eydsla(Kwh, drægni);
             cout << "Meðaleyðsla: " << utkoma;
             cout << "Kwh/100km" << endl;
             break;
@@ -49,7 +46,7 @@ int main() {
     return 0; // Success
 }
 
-// Function definitions
+// Definitions
 double eydsla(double x, double y) {
     return x / y * 100;     //Kwh / length * 100
 }
