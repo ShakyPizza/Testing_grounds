@@ -1,5 +1,6 @@
 #include <iostream>
 #include <iomanip>
+#include <limits> 
 
 using namespace std;
 
@@ -12,10 +13,30 @@ int main() {
     char val;
     double utkoma;
 
-    cout << "Hve stórt er batteríið í Kwh? ";
-    cin >> Kwh;
-    cout << "Hve langt kemstu á fullri hleðslu? ";
-    cin >> drægni;
+    do {
+        cout << "Hve stórt er batteríið í Kwh? ";
+        while (!(cin >> Kwh)) {
+            cin.clear(); // Clear error flag
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Ignore wrong input
+            cout << "Invalid input. Please enter a valid number for Kwh: ";
+        }
+        if (Kwh <= 0) {
+            cout << "Please enter a positive number for Kwh.\n";
+        }
+     } while (Kwh <= 0);
+
+    do {
+        cout << "Hve langt kemstu á fullri hleðslu? ";
+        while (!(cin >> drægni)) {
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+            cout << "Invalid input. Please enter a valid number for range: ";
+        }
+        if (drægni <= 0) {
+            cout << "Please enter a positive number for range.\n";
+        }
+    } while (drægni <= 0);
+
     cout << endl;
     cout << "Veldu aðgerð:" << endl;
     cout << endl;
@@ -31,7 +52,12 @@ int main() {
             break;
         case '2':
             cout << "Sláðu inn verð per Kwh. ";
-            cin >> kostnadurPerKwh;
+            while (!(cin >> kostnadurPerKwh)) {
+                cin.clear(); // Clear error flag
+                cin.ignore(numeric_limits<streamsize>::max(), '\n'); // Ignore wrong input
+                cout << "Invalid input. Please enter a valid number for cost per Kwh: ";
+                
+            }
             utkoma = kostnadur(Kwh, kostnadurPerKwh);
             cout << "Heildarkostnaður fyrir 0-100% hleðslu: " << utkoma;
             cout << "kr" << endl;
