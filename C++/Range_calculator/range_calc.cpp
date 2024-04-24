@@ -7,8 +7,6 @@ using namespace std;
 
 double eydsla(double x, double y);
 double kostnadur(double x, double y);
-double margfalda(double x, double y);
-double deila(double x, double y);
 
 
 int main() {
@@ -20,9 +18,9 @@ int main() {
     cin >> Kwh;
     cout << "Hve langt kemstu á fullri hleðslu? ";
     cin >> length;
-    cout << " " << endl;
+    cout << endl;
     cout << "Veldu aðgerð:" << endl;
-    cout << " " << endl;
+    cout << endl;
     cout << "1. Fyrir kwh/100km útreikning. " << endl;
     cout << "2. Fyrir kostnaðarútreikning fyrir hleðslu. " << endl;
     cin >> val;
@@ -57,5 +55,5 @@ double eydsla(double x, double y) {
 }
 
 double kostnadur(double x, double y) {
-    return x * y;
+    return x * y;           //Kwh * kostnaðurPerKwh
 }
