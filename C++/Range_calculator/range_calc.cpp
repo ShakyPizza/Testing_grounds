@@ -67,7 +67,7 @@ int main() {
             cout << "Röng aðgerð valin." << endl;
             return 1; // Loka forriti með villukóða 1
     }
-    cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    cin.ignore(numeric_limits<streamsize>::max(), '\n');
     cout << "Press ENTER to continue...";
     cin.get();
     return 0;
