@@ -10,7 +10,7 @@ def play_round():
     while not guessed_correctly and attempts < 10:
         attempts += 1
         print("What is you guess? ")
-        guess = int(input())
+        guess = int(input())t
 
         if guess < random_number:
             print("Your guess is too low")
