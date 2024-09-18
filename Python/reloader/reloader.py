@@ -4,7 +4,7 @@ import pandas as pd
 import openpyxl
 import os
 
-# Function to handle form submission and save to Excel
+# Function to handle form submission and save to Excels
 def submit_data():
     try:
         bullet_name = bullet_name_entry.get()
