@@ -3,6 +3,7 @@ from tkinter import messagebox
 import pandas as pd
 import openpyxl
 import os
+from datetime import datetime
 
 # Function to handle form submission and save to Excels
 def submit_data():
@@ -21,8 +22,22 @@ def submit_data():
             messagebox.showwarning("Input Error", "All fields must be filled!")
             return
 
-        # Store the data in a dictionary
+        # Convert numeric fields to float (if applicable)
+        try:
+            bullet_weight = float(bullet_weight)
+            powder_weight = float(powder_weight)
+            trimmed_length = float(trimmed_length)
+            oal_length = float(oal_length)
+        except ValueError:
+            messagebox.showerror("Input Error", "Please ensure that the numeric fields contain valid numbers.")
+            return
+
+        # Get the current date
+        current_date = datetime.now().strftime('%Y-%m-%d')
+
+        # Store the data in a dictionary, including the date
         data = {
+            'Date': [current_date],  # Add the current date to the data
             'Bullet Name': [bullet_name],
             'Bullet Weight (grains)': [bullet_weight],
             'Brass Name': [brass_name],
@@ -40,15 +55,21 @@ def submit_data():
 
         # Check if the Excel file exists
         if os.path.exists(file_name):
-            # Load the existing workbook
+            # Load existing workbook
             book = openpyxl.load_workbook(file_name)
-            writer = pd.ExcelWriter(file_name, engine='openpyxl', mode='a', if_sheet_exists='overlay')
-            writer.book = book
-            writer.sheets = {ws.title: ws for ws in book.worksheets}
-            df.to_excel(writer, sheet_name='Sheet1', index=False, header=False, startrow=writer.sheets['Sheet1'].max_row)
-            writer.save()
+            sheet = book.active
+
+            # Find the next available row
+            next_row = sheet.max_row + 1
+
+            # Append data to the Excel file (without headers)
+            for row in df.itertuples(index=False, name=None):
+                for col, value in enumerate(row, start=1):
+                    sheet.cell(row=next_row, column=col, value=value)
+                next_row += 1  # Move to the next row
+            book.save(file_name)
         else:
-            # If the file doesn't exist, create it
+            # If the file doesn't exist, write data with headers
             df.to_excel(file_name, index=False)
 
         messagebox.showinfo("Data Submitted", "Data has been logged successfully!")
@@ -59,6 +80,12 @@ def submit_data():
 # Create the main window
 root = tk.Tk()
 root.title("Ammo Reloading Data Entry")
+
+# Set a minimum size for the window
+root.geometry("400x420")  # Adjust size as needed
+
+# Define a common width for all input fields
+common_width = 20
 
 # Create and place labels and entry fields
 fields = {
@@ -75,9 +102,9 @@ fields = {
 entries = {}
 
 for idx, (label, var) in enumerate(fields.items()):
-    tk.Label(root, text=label).grid(row=idx, column=0, padx=10, pady=5)
-    entry = tk.Entry(root)
-    entry.grid(row=idx, column=1, padx=10, pady=5)
+    tk.Label(root, text=label).grid(row=idx, column=0, padx=10, pady=5, sticky="e")
+    entry = tk.Entry(root, width=common_width)  # Set width to match the Notes field
+    entry.grid(row=idx, column=1, padx=10, pady=5, sticky="w")
     entries[label] = entry
 
 # Assign entries for easier access
@@ -90,9 +117,16 @@ powder_weight_entry = entries["Powder Weight (grains)"]
 trimmed_length_entry = entries["Trimmed Case Length (in)"]
 oal_length_entry = entries["OAL Length (in)"]
 
-# Submit button
+# Add Notes field (multi-line Text widget) with the same width as the Entry fields
+tk.Label(root, text="Notes").grid(row=len(fields), column=0, padx=10, pady=5, sticky="e")
+notes_entry = tk.Text(root, height=3, width=27)  # Set width to match Entry fields
+notes_entry.grid(row=len(fields), column=1, padx=10, pady=5, sticky="w")
+
+# Add Submit button with better centering
 submit_button = tk.Button(root, text="Submit", command=submit_data)
-submit_button.grid(row=len(fields), column=0, columnspan=2, pady=10)
+
+# Make sure the button spans both columns and is centered
+submit_button.grid(row=len(fields)+1, column=0, columnspan=2, pady=20, padx=20, sticky="ew")
 
 # Start the main event loop
 root.mainloop()
