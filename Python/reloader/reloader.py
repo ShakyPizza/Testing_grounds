@@ -24,7 +24,7 @@ def submit_data():
         case_trimmed = "X" if case_trimmed_var.get() == 1 else ""
 
         # Ensure all fields are filled
-        if not (bullet_name and bullet_weight and brass_name and primer_type and powder_type and powder_weight and oal_length):
+        if not (bullet_name and bullet_weight and brass_name and primer_type and powder_type and powder_weight and oal_length and operator):
             messagebox.showwarning("Input Error", "All fields must be filled!")
             return
 
@@ -41,10 +41,20 @@ def submit_data():
         # Get the current date
         current_date = datetime.now().strftime('%Y-%m-%d')
 
+        # Get the next ID based on the number of existing entries in the Excel file
+        file_name = 'ammo_reloading_data.xlsx'
+        if os.path.exists(file_name):
+            book = openpyxl.load_workbook(file_name)
+            sheet = book.active
+            next_id = sheet.max_row  # The next ID is the current max row
+        else:
+            next_id = 1  # If the file doesn't exist, start with ID 1
+
         # Store the data in a dictionary
         data = {
+            'ID': [next_id],  # Add the generated ID
             'Date': [current_date],
-            'Operator': [operator],  # Add the selected operator
+            'Operator': [operator],
             'Bullet Name': [bullet_name],
             'Bullet Weight (grains)': [bullet_weight],
             'Brass Name': [brass_name],
@@ -60,28 +70,14 @@ def submit_data():
         # Convert the data to a DataFrame
         df = pd.DataFrame(data)
 
-        file_name = 'ammo_reloading_data.xlsx'
-
-        # Check if the Excel file exists
+        # Check if the Excel file exists and append or create it
         if os.path.exists(file_name):
-            # Load existing workbook
-            book = openpyxl.load_workbook(file_name)
-            sheet = book.active
-
-            # Find the next available row
-            next_row = sheet.max_row + 1
-
-            # Append data to the Excel file (without headers)
-            for row in df.itertuples(index=False, name=None):
-                for col, value in enumerate(row, start=1):
-                    sheet.cell(row=next_row, column=col, value=value)
-                next_row += 1  # Move to the next row
-            book.save(file_name)
+            with pd.ExcelWriter(file_name, engine='openpyxl', mode='a', if_sheet_exists='overlay') as writer:
+                df.to_excel(writer, index=False, header=False, startrow=next_id)
         else:
-            # If the file doesn't exist, write data with headers
             df.to_excel(file_name, index=False)
 
-        messagebox.showinfo("Data Submitted", "Data has been logged successfully!")
+        messagebox.showinfo("Data Submitted", f"Data with ID {next_id} has been logged successfully!")
 
     except Exception as e:
         messagebox.showerror("Error", f"An error occurred: {str(e)}")
@@ -105,8 +101,7 @@ fields = {
     "Primer Type": None,
     "Powder Type": None,
     "Powder Weight (grains)": None,
-    "OAL Length (in)": None,
-    #"Trimmed Case Length (in)": None
+    "OAL Length (in)": None
 }
 
 entries = {}
@@ -125,7 +120,6 @@ primer_type_entry = entries["Primer Type"]
 powder_type_entry = entries["Powder Type"]
 powder_weight_entry = entries["Powder Weight (grains)"]
 oal_length_entry = entries["OAL Length (in)"]
-#trimmed_length_entry = entries["Trimmed Case Length (in)"]
 
 # Operator dropdown (Combobox)
 tk.Label(root, text="Operator").grid(row=len(fields), column=0, padx=10, pady=5, sticky="e")
