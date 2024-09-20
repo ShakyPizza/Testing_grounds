@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import ttk
 from tkinter import messagebox
 import pandas as pd
 import openpyxl
@@ -17,6 +18,7 @@ def submit_data():
         oal_length = oal_length_entry.get()
         trimmed_length = trimmed_length_entry.get() if case_trimmed_var.get() == 1 else ""  # Only get trimmed length if enabled
         notes = notes_entry.get("1.0", tk.END).strip()
+        operator = operator_combobox.get()
         
         # Get the checkbox state and add an "X" if it is checked
         case_trimmed = "X" if case_trimmed_var.get() == 1 else ""
@@ -30,7 +32,7 @@ def submit_data():
         try:
             bullet_weight = float(bullet_weight)
             powder_weight = float(powder_weight)
-            trimmed_length = float(trimmed_length)
+            trimmed_length = float(trimmed_length) if case_trimmed_var.get() == 1 else ""
             oal_length = float(oal_length)
         except ValueError:
             messagebox.showerror("Input Error", "Please ensure that the numeric fields contain valid numbers.")
@@ -42,6 +44,7 @@ def submit_data():
         # Store the data in a dictionary
         data = {
             'Date': [current_date],
+            'Operator': [operator],  # Add the selected operator
             'Bullet Name': [bullet_name],
             'Bullet Weight (grains)': [bullet_weight],
             'Brass Name': [brass_name],
@@ -124,27 +127,31 @@ powder_weight_entry = entries["Powder Weight (grains)"]
 oal_length_entry = entries["OAL Length (in)"]
 #trimmed_length_entry = entries["Trimmed Case Length (in)"]
 
+# Operator dropdown (Combobox)
+tk.Label(root, text="Operator").grid(row=len(fields), column=0, padx=10, pady=5, sticky="e")
+operator_combobox = ttk.Combobox(root, values=["Arnar Halldórsson", "Benedikt Orri", "Kjartan Magnússon", "Daði Lange"], state="readonly")
+operator_combobox.grid(row=len(fields), column=1, padx=10, pady=5, sticky="w")
+
 case_trimmed_var = tk.IntVar()  # This will be 1 if checked, 0 if unchecked
 
-
 # Add the checkbox for "Case trimming"
-tk.Label(root, text="Case trimming").grid(row=len(fields), column=0, padx=10, pady=5, sticky="e")
+tk.Label(root, text="Case trimming").grid(row=len(fields)+1, column=0, padx=10, pady=5, sticky="e")
 hylki_stytt_checkbox = tk.Checkbutton(root, text="Case trimmed", variable=case_trimmed_var, command=toggle_trimmed_length)
-hylki_stytt_checkbox.grid(row=len(fields), column=1, padx=10, pady=5, sticky="w")
+hylki_stytt_checkbox.grid(row=len(fields)+1, column=1, padx=10, pady=5, sticky="w")
 
 # Now add "Trimmed Case Length" after the checkbox
-tk.Label(root, text="Trimmed Case Length (in)").grid(row=len(fields)+1, column=0, padx=10, pady=5, sticky="e")
+tk.Label(root, text="Trimmed Case Length (in)").grid(row=len(fields)+2, column=0, padx=10, pady=5, sticky="e")
 trimmed_length_entry = tk.Entry(root, state="disabled")  # Initially disabled
-trimmed_length_entry.grid(row=len(fields)+1, column=1, padx=10, pady=5, sticky="w")
+trimmed_length_entry.grid(row=len(fields)+2, column=1, padx=10, pady=5, sticky="w")
 
 # Add Notes field (multi-line Text widget)
-tk.Label(root, text="Notes").grid(row=len(fields)+2, column=0, padx=10, pady=5, sticky="e")
+tk.Label(root, text="Notes").grid(row=len(fields)+3, column=0, padx=10, pady=5, sticky="e")
 notes_entry = tk.Text(root, height=4, width=30)
-notes_entry.grid(row=len(fields)+2, column=1, padx=10, pady=5, sticky="w")
+notes_entry.grid(row=len(fields)+3, column=1, padx=10, pady=5, sticky="w")
 
 # Add Submit button
 submit_button = tk.Button(root, text="Submit", command=submit_data)
-submit_button.grid(row=len(fields)+3, column=0, columnspan=2, pady=20, padx=20, sticky="ew")
+submit_button.grid(row=len(fields)+4, column=0, columnspan=2, pady=20, padx=20, sticky="ew")
 
 # Start the main event loop
 root.mainloop()
