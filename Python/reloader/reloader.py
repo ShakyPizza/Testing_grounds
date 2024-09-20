@@ -19,12 +19,13 @@ def submit_data():
         trimmed_length = trimmed_length_entry.get() if case_trimmed_var.get() == 1 else ""  # Only get trimmed length if enabled
         notes = notes_entry.get("1.0", tk.END).strip()
         operator = operator_combobox.get()
+        caliber = caliber_combobox.get()  # Get selected caliber
         
         # Get the checkbox state and add an "X" if it is checked
         case_trimmed = "X" if case_trimmed_var.get() == 1 else ""
 
         # Ensure all fields are filled
-        if not (bullet_name and bullet_weight and brass_name and primer_type and powder_type and powder_weight and oal_length and operator):
+        if not (bullet_name and bullet_weight and brass_name and primer_type and powder_type and powder_weight and oal_length and operator and caliber):
             messagebox.showwarning("Input Error", "All fields must be filled!")
             return
 
@@ -55,6 +56,7 @@ def submit_data():
             'ID': [next_id],  # Add the generated ID
             'Date': [current_date],
             'Operator': [operator],
+            'Caliber': [caliber],  # Add the selected caliber
             'Bullet Name': [bullet_name],
             'Bullet Weight (grains)': [bullet_weight],
             'Brass Name': [brass_name],
@@ -88,10 +90,43 @@ def toggle_trimmed_length():
     else:
         trimmed_length_entry.config(state="disabled")  # Disable the field
 
+# Function to load calibers from the calibers.txt file
+def load_calibers():
+    if os.path.exists("calibers.txt"):
+        with open("calibers.txt", "r") as f:
+            calibers = [line.strip() for line in f.readlines()]
+    else:
+        # Default calibers if the file doesn't exist
+        calibers = [".22 Hornet", ".222", ".223", "6,5x55 SE", ".308"]
+    return calibers
+
+# Function to save calibers to the calibers.txt file
+def save_calibers(new_caliber):
+    calibers = load_calibers()
+    if new_caliber not in calibers:
+        calibers.append(new_caliber)
+        with open("calibers.txt", "w") as f:
+            for caliber in calibers:
+                f.write(caliber + "\n")
+        # Update the dropdown list
+        caliber_combobox['values'] = calibers
+        messagebox.showinfo("Success", f"Caliber '{new_caliber}' added successfully!")
+    else:
+        messagebox.showwarning("Duplicate", f"The caliber '{new_caliber}' already exists!")
+
+# Function to add a new caliber
+def add_caliber():
+    new_caliber = new_caliber_entry.get().strip()
+    if new_caliber:
+        save_calibers(new_caliber)
+        new_caliber_entry.delete(0, tk.END)
+    else:
+        messagebox.showwarning("Input Error", "Please enter a valid caliber.")
+
 # Create the main window
 root = tk.Tk()
 root.title("Ammo Reloading Data Entry")
-root.geometry("450x480")
+root.geometry("450x540")
 
 # Create and place labels and entry fields
 fields = {
@@ -126,26 +161,39 @@ tk.Label(root, text="Operator").grid(row=len(fields), column=0, padx=10, pady=5,
 operator_combobox = ttk.Combobox(root, values=["Arnar Halldórsson", "Benedikt Orri", "Kjartan Magnússon", "Daði Lange"], state="readonly")
 operator_combobox.grid(row=len(fields), column=1, padx=10, pady=5, sticky="w")
 
+# Caliber dropdown (Combobox)
+tk.Label(root, text="Caliber").grid(row=len(fields)+1, column=0, padx=10, pady=5, sticky="e")
+calibers = load_calibers()  # Load calibers from file
+caliber_combobox = ttk.Combobox(root, values=calibers, state="readonly")
+caliber_combobox.grid(row=len(fields)+1, column=1, padx=10, pady=5, sticky="w")
+
+# Input field and button to add a new caliber
+tk.Label(root, text="Add New Caliber").grid(row=len(fields)+2, column=0, padx=10, pady=5, sticky="e")
+new_caliber_entry = tk.Entry(root)
+new_caliber_entry.grid(row=len(fields)+2, column=1, padx=10, pady=5, sticky="w")
+
+add_caliber_button = tk.Button(root, text="Add Caliber", command=add_caliber)
+add_caliber_button.grid(row=len(fields)+3, column=0, columnspan=2, pady=5, padx=10, sticky="ew")
+
+# Case trimming checkbox
 case_trimmed_var = tk.IntVar()  # This will be 1 if checked, 0 if unchecked
-
-# Add the checkbox for "Case trimming"
-tk.Label(root, text="Case trimming").grid(row=len(fields)+1, column=0, padx=10, pady=5, sticky="e")
+tk.Label(root, text="Case trimming").grid(row=len(fields)+4, column=0, padx=10, pady=5, sticky="e")
 hylki_stytt_checkbox = tk.Checkbutton(root, text="Case trimmed", variable=case_trimmed_var, command=toggle_trimmed_length)
-hylki_stytt_checkbox.grid(row=len(fields)+1, column=1, padx=10, pady=5, sticky="w")
+hylki_stytt_checkbox.grid(row=len(fields)+4, column=1, padx=10, pady=5, sticky="w")
 
-# Now add "Trimmed Case Length" after the checkbox
-tk.Label(root, text="Trimmed Case Length (in)").grid(row=len(fields)+2, column=0, padx=10, pady=5, sticky="e")
+# Trimmed Case Length field
+tk.Label(root, text="Trimmed Case Length (in)").grid(row=len(fields)+5, column=0, padx=10, pady=5, sticky="e")
 trimmed_length_entry = tk.Entry(root, state="disabled")  # Initially disabled
-trimmed_length_entry.grid(row=len(fields)+2, column=1, padx=10, pady=5, sticky="w")
+trimmed_length_entry.grid(row=len(fields)+5, column=1, padx=10, pady=5, sticky="w")
 
-# Add Notes field (multi-line Text widget)
-tk.Label(root, text="Notes").grid(row=len(fields)+3, column=0, padx=10, pady=5, sticky="e")
+# Notes field
+tk.Label(root, text="Notes").grid(row=len(fields)+6, column=0, padx=10, pady=5, sticky="e")
 notes_entry = tk.Text(root, height=4, width=30)
-notes_entry.grid(row=len(fields)+3, column=1, padx=10, pady=5, sticky="w")
+notes_entry.grid(row=len(fields)+6, column=1, padx=10, pady=5, sticky="w")
 
-# Add Submit button
+# Submit button
 submit_button = tk.Button(root, text="Submit", command=submit_data)
-submit_button.grid(row=len(fields)+4, column=0, columnspan=2, pady=20, padx=20, sticky="ew")
+submit_button.grid(row=len(fields)+7, column=0, columnspan=2, pady=20, padx=20, sticky="ew")
 
 # Start the main event loop
 root.mainloop()
