@@ -5,6 +5,63 @@ import pandas as pd
 import openpyxl
 import os
 from datetime import datetime
+from reportlab.lib.pagesizes import A4
+from reportlab.pdfgen import canvas
+
+# Function to save data to PDF
+def save_to_pdf():
+    try:
+        # Get the latest submission data
+        bullet_name = bullet_name_entry.get()
+        bullet_weight = bullet_weight_entry.get()
+        brass_name = brass_name_entry.get()
+        primer_type = primer_type_entry.get()
+        powder_type = powder_type_entry.get()
+        powder_weight = powder_weight_entry.get()
+        oal_length = oal_length_entry.get()
+        trimmed_length = trimmed_length_entry.get() if case_trimmed_var.get() == 1 else "N/A"
+        notes = notes_entry.get("1.0", tk.END).strip()
+        operator = operator_combobox.get()
+        caliber = caliber_combobox.get()
+        case_trimmed = "X" if case_trimmed_var.get() == 1 else "No"
+
+        # Get the current date
+        current_date = datetime.now().strftime('%Y-%m-%d')
+
+        # Create a new PDF file name with the date included
+        pdf_file_name = f"reloaded_ammo_{bullet_name}_{current_date}.pdf"
+
+        # Create a new PDF
+        pdf_file = canvas.Canvas(pdf_file_name, pagesize=A4)
+        pdf_file.setFont("Helvetica", 12)
+
+        # Add information to the PDF
+        pdf_file.drawString(100, 800, f"Reloaded Ammunition Information")
+        pdf_file.drawString(100, 780, f"Date: {current_date}")
+        pdf_file.drawString(100, 760, f"Bullet Name: {bullet_name}")
+        pdf_file.drawString(100, 740, f"Bullet Weight: {bullet_weight} grains")
+        pdf_file.drawString(100, 720, f"Brass Name: {brass_name}")
+        pdf_file.drawString(100, 700, f"Primer Type: {primer_type}")
+        pdf_file.drawString(100, 680, f"Powder Type: {powder_type}")
+        pdf_file.drawString(100, 660, f"Powder Weight: {powder_weight} grains")
+        pdf_file.drawString(100, 640, f"OAL Length: {oal_length} in")
+        pdf_file.drawString(100, 620, f"Trimmed Case Length: {trimmed_length}")
+        pdf_file.drawString(100, 600, f"Case Trimmed: {case_trimmed}")
+        pdf_file.drawString(100, 580, f"Caliber: {caliber}")
+        pdf_file.drawString(100, 560, f"Operator: {operator}")
+        pdf_file.drawString(100, 540, f"Notes: {notes}")
+
+        # Save and close the PDF file
+        pdf_file.save()
+
+        messagebox.showinfo("PDF Saved", f"PDF saved as '{pdf_file_name}' successfully!")
+
+    except Exception as e:
+        messagebox.showerror("Error", f"An error occurred: {str(e)}")
+
+
+
+
 
 # Function to handle form submission and save to Excel
 def submit_data():
@@ -17,9 +74,9 @@ def submit_data():
         powder_weight = powder_weight_entry.get()
         oal_length = oal_length_entry.get()
         trimmed_length = trimmed_length_entry.get() if case_trimmed_var.get() == 1 else ""  # Only get trimmed length if enabled
-        notes = notes_entry.get("1.0", tk.END).strip()
         operator = operator_combobox.get()
         caliber = caliber_combobox.get()  # Get selected caliber
+        notes = notes_entry.get("1.0", tk.END).strip()
         
         # Get the checkbox state and add an "X" if it is checked
         case_trimmed = "X" if case_trimmed_var.get() == 1 else ""
@@ -126,7 +183,7 @@ def add_caliber():
 # Create the main window
 root = tk.Tk()
 root.title("Ammo Reloading Data Entry")
-root.geometry("450x540")
+root.geometry("450x700")
 
 # Create and place labels and entry fields
 fields = {
@@ -156,35 +213,35 @@ powder_type_entry = entries["Powder Type"]
 powder_weight_entry = entries["Powder Weight (grains)"]
 oal_length_entry = entries["OAL Length (in)"]
 
-# Operator dropdown (Combobox)
-tk.Label(root, text="Operator").grid(row=len(fields), column=0, padx=10, pady=5, sticky="e")
-operator_combobox = ttk.Combobox(root, values=["Arnar Halldórsson", "Benedikt Orri", "Kjartan Magnússon", "Daði Lange"], state="readonly")
-operator_combobox.grid(row=len(fields), column=1, padx=10, pady=5, sticky="w")
-
-# Caliber dropdown (Combobox)
-tk.Label(root, text="Caliber").grid(row=len(fields)+1, column=0, padx=10, pady=5, sticky="e")
-calibers = load_calibers()  # Load calibers from file
-caliber_combobox = ttk.Combobox(root, values=calibers, state="readonly")
-caliber_combobox.grid(row=len(fields)+1, column=1, padx=10, pady=5, sticky="w")
-
-# Input field and button to add a new caliber
-tk.Label(root, text="Add New Caliber").grid(row=len(fields)+2, column=0, padx=10, pady=5, sticky="e")
-new_caliber_entry = tk.Entry(root)
-new_caliber_entry.grid(row=len(fields)+2, column=1, padx=10, pady=5, sticky="w")
-
-add_caliber_button = tk.Button(root, text="Add Caliber", command=add_caliber)
-add_caliber_button.grid(row=len(fields)+3, column=0, columnspan=2, pady=5, padx=10, sticky="ew")
-
 # Case trimming checkbox
 case_trimmed_var = tk.IntVar()  # This will be 1 if checked, 0 if unchecked
-tk.Label(root, text="Case trimming").grid(row=len(fields)+4, column=0, padx=10, pady=5, sticky="e")
+tk.Label(root, text="Case trimming").grid(row=len(fields), column=0, padx=10, pady=5, sticky="e")
 hylki_stytt_checkbox = tk.Checkbutton(root, text="Case trimmed", variable=case_trimmed_var, command=toggle_trimmed_length)
-hylki_stytt_checkbox.grid(row=len(fields)+4, column=1, padx=10, pady=5, sticky="w")
+hylki_stytt_checkbox.grid(row=len(fields), column=1, padx=10, pady=5, sticky="w")
 
 # Trimmed Case Length field
-tk.Label(root, text="Trimmed Case Length (in)").grid(row=len(fields)+5, column=0, padx=10, pady=5, sticky="e")
+tk.Label(root, text="Trimmed Case Length (in)").grid(row=len(fields)+1, column=0, padx=10, pady=5, sticky="e")
 trimmed_length_entry = tk.Entry(root, state="disabled")  # Initially disabled
-trimmed_length_entry.grid(row=len(fields)+5, column=1, padx=10, pady=5, sticky="w")
+trimmed_length_entry.grid(row=len(fields)+1, column=1, padx=10, pady=5, sticky="w")
+
+# Operator dropdown (Combobox)
+tk.Label(root, text="Operator").grid(row=len(fields)+2, column=0, padx=10, pady=5, sticky="e")
+operator_combobox = ttk.Combobox(root, values=["Arnar Halldórsson", "Benedikt Orri", "Kjartan Magnússon", "Daði Lange"], state="readonly")
+operator_combobox.grid(row=len(fields)+2, column=1, padx=10, pady=5, sticky="w")
+
+# Caliber dropdown (Combobox)
+tk.Label(root, text="Caliber").grid(row=len(fields)+3, column=0, padx=10, pady=5, sticky="e")
+calibers = load_calibers()  # Load calibers from file
+caliber_combobox = ttk.Combobox(root, values=calibers, state="readonly")
+caliber_combobox.grid(row=len(fields)+3, column=1, padx=10, pady=5, sticky="w")
+
+# Input field and button to add a new caliber
+tk.Label(root, text="Add New Caliber").grid(row=len(fields)+4, column=0, padx=10, pady=5, sticky="e")
+new_caliber_entry = tk.Entry(root)
+new_caliber_entry.grid(row=len(fields)+4, column=1, padx=10, pady=5, sticky="w")
+
+add_caliber_button = tk.Button(root, text="Add Caliber", command=add_caliber)
+add_caliber_button.grid(row=len(fields)+5, column=1, padx=5, pady=5) 
 
 # Notes field
 tk.Label(root, text="Notes").grid(row=len(fields)+6, column=0, padx=10, pady=5, sticky="e")
@@ -194,6 +251,10 @@ notes_entry.grid(row=len(fields)+6, column=1, padx=10, pady=5, sticky="w")
 # Submit button
 submit_button = tk.Button(root, text="Submit", command=submit_data)
 submit_button.grid(row=len(fields)+7, column=0, columnspan=2, pady=20, padx=20, sticky="ew")
+
+# Add a button for saving to PDF
+save_pdf_button = tk.Button(root, text="Save to PDF", command=save_to_pdf)
+save_pdf_button.grid(row=len(fields)+8, column=0, columnspan=2, pady=5, padx=10)
 
 # Start the main event loop
 root.mainloop()
