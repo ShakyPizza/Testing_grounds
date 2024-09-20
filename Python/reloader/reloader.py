@@ -149,7 +149,7 @@ def toggle_trimmed_length():
 
 # Function to load calibers from the calibers.txt file
 def load_calibers():
-    if os.path.exists("calibers.txt"):
+    if os.path.exists("Python/reloader/calibers.txt"):
         with open("calibers.txt", "r") as f:
             calibers = [line.strip() for line in f.readlines()]
     else:
