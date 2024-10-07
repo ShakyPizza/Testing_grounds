@@ -12,7 +12,7 @@ from reportlab.pdfgen import canvas
 def save_to_pdf():
     try:
         # Get the latest submission data
-        bullet_name = bullet_name_entry.get()
+        bullet_name = bullet_combobox.get()
         bullet_weight = bullet_weight_entry.get()
         brass_name = brass_name_entry.get()
         primer_type = primer_type_entry.get()
@@ -26,7 +26,7 @@ def save_to_pdf():
         case_trimmed = "X" if case_trimmed_var.get() == 1 else "No"
 
         # Get the current date
-        current_date = datetime.now().strftime('%Y-%m-%d')
+        current_date = datetime.now().strftime('%Y-%d-%m')
 
         # Create a new PDF file name with the date included
         pdf_file_name = f"reloaded_ammo_{bullet_name}_{current_date}.pdf"
@@ -36,20 +36,20 @@ def save_to_pdf():
         pdf_file.setFont("Helvetica", 12)
 
         # Add information to the PDF
-        pdf_file.drawString(100, 800, f"Reloaded Ammunition Information")
-        pdf_file.drawString(100, 780, f"Date: {current_date}")
-        pdf_file.drawString(100, 760, f"Bullet Name: {bullet_name}")
-        pdf_file.drawString(100, 740, f"Bullet Weight: {bullet_weight} grains")
-        pdf_file.drawString(100, 720, f"Brass Name: {brass_name}")
-        pdf_file.drawString(100, 700, f"Primer Type: {primer_type}")
-        pdf_file.drawString(100, 680, f"Powder Type: {powder_type}")
-        pdf_file.drawString(100, 660, f"Powder Weight: {powder_weight} grains")
-        pdf_file.drawString(100, 640, f"OAL Length: {oal_length} in")
-        pdf_file.drawString(100, 620, f"Trimmed Case Length: {trimmed_length}")
-        pdf_file.drawString(100, 600, f"Case Trimmed: {case_trimmed}")
+        pdf_file.drawString(100, 800, f"Hleðsluupplýsingar")
+        pdf_file.drawString(100, 780, f"Dags: {current_date}")
+        pdf_file.drawString(100, 760, f"Nafn kúlu: {bullet_name}")
+        pdf_file.drawString(100, 740, f"Þyngd kúlu: {bullet_weight} grains")
+        pdf_file.drawString(100, 720, f"Patróna: {brass_name}")
+        pdf_file.drawString(100, 700, f"Primer: {primer_type}")
+        pdf_file.drawString(100, 680, f"Púður: {powder_type}")
+        pdf_file.drawString(100, 660, f"Púður þyngd: {powder_weight} grains")
+        pdf_file.drawString(100, 640, f"OAL lengd: {oal_length} in")
+        pdf_file.drawString(100, 620, f"Stytt í lengd: {trimmed_length}")
+        pdf_file.drawString(100, 600, f"Patróna stytt: {case_trimmed}")
         pdf_file.drawString(100, 580, f"Caliber: {caliber}")
-        pdf_file.drawString(100, 560, f"Operator: {operator}")
-        pdf_file.drawString(100, 540, f"Notes: {notes}")
+        pdf_file.drawString(100, 560, f"Nafn: {operator}")
+        pdf_file.drawString(100, 540, f"Athugasemdir: {notes}")
 
         # Save and close the PDF file
         pdf_file.save()
@@ -66,7 +66,7 @@ def save_to_pdf():
 # Function to handle form submission and save to Excel
 def submit_data():
     try:
-        bullet_name = bullet_name_entry.get()
+        bullet_name = bullet_combobox.get()
         bullet_weight = bullet_weight_entry.get()
         brass_name = brass_name_entry.get()
         primer_type = primer_type_entry.get()
