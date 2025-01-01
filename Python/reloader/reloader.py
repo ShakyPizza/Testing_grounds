@@ -12,7 +12,7 @@ from reportlab.pdfgen import canvas
 def save_to_pdf():
     try:
         # Get the latest submission data
-        bullet_name = bullet_name_entry.get()
+        bullet_name = bullet_combobox.get()
         bullet_weight = bullet_weight_entry.get()
         brass_name = brass_name_entry.get()
         primer_type = primer_type_entry.get()
@@ -26,7 +26,7 @@ def save_to_pdf():
         case_trimmed = "X" if case_trimmed_var.get() == 1 else "No"
 
         # Get the current date
-        current_date = datetime.now().strftime('%Y-%m-%d')
+        current_date = datetime.now().strftime('%Y-%d-%m')
 
         # Create a new PDF file name with the date included
         pdf_file_name = f"reloaded_ammo_{bullet_name}_{current_date}.pdf"
@@ -36,20 +36,20 @@ def save_to_pdf():
         pdf_file.setFont("Helvetica", 12)
 
         # Add information to the PDF
-        pdf_file.drawString(100, 800, f"Reloaded Ammunition Information")
-        pdf_file.drawString(100, 780, f"Date: {current_date}")
-        pdf_file.drawString(100, 760, f"Bullet Name: {bullet_name}")
-        pdf_file.drawString(100, 740, f"Bullet Weight: {bullet_weight} grains")
-        pdf_file.drawString(100, 720, f"Brass Name: {brass_name}")
-        pdf_file.drawString(100, 700, f"Primer Type: {primer_type}")
-        pdf_file.drawString(100, 680, f"Powder Type: {powder_type}")
-        pdf_file.drawString(100, 660, f"Powder Weight: {powder_weight} grains")
-        pdf_file.drawString(100, 640, f"OAL Length: {oal_length} in")
-        pdf_file.drawString(100, 620, f"Trimmed Case Length: {trimmed_length}")
-        pdf_file.drawString(100, 600, f"Case Trimmed: {case_trimmed}")
+        pdf_file.drawString(100, 800, f"Hleðsluupplýsingar")
+        pdf_file.drawString(100, 780, f"Dags: {current_date}")
+        pdf_file.drawString(100, 760, f"Nafn kúlu: {bullet_name}")
+        pdf_file.drawString(100, 740, f"Þyngd kúlu: {bullet_weight} grains")
+        pdf_file.drawString(100, 720, f"Patróna: {brass_name}")
+        pdf_file.drawString(100, 700, f"Primer: {primer_type}")
+        pdf_file.drawString(100, 680, f"Púður: {powder_type}")
+        pdf_file.drawString(100, 660, f"Púður þyngd: {powder_weight} grains")
+        pdf_file.drawString(100, 640, f"OAL lengd: {oal_length} in")
+        pdf_file.drawString(100, 620, f"Stytt í lengd: {trimmed_length}")
+        pdf_file.drawString(100, 600, f"Patróna stytt: {case_trimmed}")
         pdf_file.drawString(100, 580, f"Caliber: {caliber}")
-        pdf_file.drawString(100, 560, f"Operator: {operator}")
-        pdf_file.drawString(100, 540, f"Notes: {notes}")
+        pdf_file.drawString(100, 560, f"Nafn: {operator}")
+        pdf_file.drawString(100, 540, f"Athugasemdir: {notes}")
 
         # Save and close the PDF file
         pdf_file.save()
@@ -66,7 +66,7 @@ def save_to_pdf():
 # Function to handle form submission and save to Excel
 def submit_data():
     try:
-        bullet_name = bullet_name_entry.get()
+        bullet_name = bullet_combobox.get()
         bullet_weight = bullet_weight_entry.get()
         brass_name = brass_name_entry.get()
         primer_type = primer_type_entry.get()
@@ -141,6 +141,38 @@ def submit_data():
     except Exception as e:
         messagebox.showerror("Error", f"An error occurred: {str(e)}")
 
+def load_bullets():
+    if os.path.exists("bullets.txt"):
+        with open("bullets.txt", "r") as f:
+            bullets = [line.strip() for line in f.readlines()]
+    else:
+        # Default bullets if the file doesn't exist
+        bullets = ["Bullet A", "Bullet B", "Bullet C"]
+    return bullets
+
+# Function to save bullets to the bullets.txt file
+def save_bullets(new_bullet):
+    bullets = load_bullets()
+    if new_bullet not in bullets:
+        bullets.append(new_bullet)
+        with open("bullets.txt", "w") as f:
+            for bullet in bullets:
+                f.write(bullet + "\n")
+        # Update the dropdown list
+        bullet_combobox['values'] = bullets
+        messagebox.showinfo("Success", f"Bullet '{new_bullet}' added successfully!")
+    else:
+        messagebox.showwarning("Duplicate", f"The bullet '{new_bullet}' already exists!")
+
+# Function to add a new bullet
+def add_bullet():
+    new_bullet = new_bullet_entry.get().strip()
+    if new_bullet:
+        save_bullets(new_bullet)
+        new_bullet_entry.delete(0, tk.END)
+    else:
+        messagebox.showwarning("Input Error", "Please enter a valid bullet name.")
+
 def toggle_trimmed_length():
     if case_trimmed_var.get() == 1:
         trimmed_length_entry.config(state="normal")  # Enable the field
@@ -183,11 +215,24 @@ def add_caliber():
 # Create the main window
 root = tk.Tk()
 root.title("Ammo Reloading Data Entry")
-root.geometry("450x700")
+root.geometry("450x800")
 
-# Create and place labels and entry fields
+# Bullet dropdown (Combobox) at the top
+tk.Label(root, text="Bullet Name").grid(row=0, column=0, padx=10, pady=5, sticky="e")
+bullets = load_bullets()  # Load bullets from file
+bullet_combobox = ttk.Combobox(root, values=bullets, state="readonly")
+bullet_combobox.grid(row=0, column=1, padx=10, pady=5, sticky="w")
+
+# Input field and button to add a new bullet at the top
+tk.Label(root, text="Add New Bullet").grid(row=1, column=0, padx=10, pady=5, sticky="e")
+new_bullet_entry = tk.Entry(root)
+new_bullet_entry.grid(row=1, column=1, padx=10, pady=5, sticky="w")
+
+add_bullet_button = tk.Button(root, text="Add Bullet", command=add_bullet)
+add_bullet_button.grid(row=2, column=1, padx=5, pady=5)
+
+# Create and place other labels and entry fields starting from row 3
 fields = {
-    "Bullet Name": None,
     "Bullet Weight (grains)": None,
     "Brass Name": None,
     "Primer Type": None,
@@ -199,13 +244,12 @@ fields = {
 entries = {}
 
 for idx, (label, var) in enumerate(fields.items()):
-    tk.Label(root, text=label).grid(row=idx, column=0, padx=10, pady=5, sticky="e")
+    tk.Label(root, text=label).grid(row=idx+3, column=0, padx=10, pady=5, sticky="e")
     entry = tk.Entry(root)
-    entry.grid(row=idx, column=1, padx=10, pady=5, sticky="w")
+    entry.grid(row=idx+3, column=1, padx=10, pady=5, sticky="w")
     entries[label] = entry
 
 # Assign entries for easier access
-bullet_name_entry = entries["Bullet Name"]
 bullet_weight_entry = entries["Bullet Weight (grains)"]
 brass_name_entry = entries["Brass Name"]
 primer_type_entry = entries["Primer Type"]
@@ -215,46 +259,46 @@ oal_length_entry = entries["OAL Length (in)"]
 
 # Case trimming checkbox
 case_trimmed_var = tk.IntVar()  # This will be 1 if checked, 0 if unchecked
-tk.Label(root, text="Case trimming").grid(row=len(fields), column=0, padx=10, pady=5, sticky="e")
+tk.Label(root, text="Case trimming").grid(row=len(fields)+3, column=0, padx=10, pady=5, sticky="e")
 hylki_stytt_checkbox = tk.Checkbutton(root, text="Case trimmed", variable=case_trimmed_var, command=toggle_trimmed_length)
-hylki_stytt_checkbox.grid(row=len(fields), column=1, padx=10, pady=5, sticky="w")
+hylki_stytt_checkbox.grid(row=len(fields)+3, column=1, padx=10, pady=5, sticky="w")
 
 # Trimmed Case Length field
-tk.Label(root, text="Trimmed Case Length (in)").grid(row=len(fields)+1, column=0, padx=10, pady=5, sticky="e")
+tk.Label(root, text="Trimmed Case Length (in)").grid(row=len(fields)+4, column=0, padx=10, pady=5, sticky="e")
 trimmed_length_entry = tk.Entry(root, state="disabled")  # Initially disabled
-trimmed_length_entry.grid(row=len(fields)+1, column=1, padx=10, pady=5, sticky="w")
+trimmed_length_entry.grid(row=len(fields)+4, column=1, padx=10, pady=5, sticky="w")
 
 # Operator dropdown (Combobox)
-tk.Label(root, text="Operator").grid(row=len(fields)+2, column=0, padx=10, pady=5, sticky="e")
+tk.Label(root, text="Operator").grid(row=len(fields)+5, column=0, padx=10, pady=5, sticky="e")
 operator_combobox = ttk.Combobox(root, values=["Arnar Halldórsson", "Benedikt Orri", "Kjartan Magnússon", "Daði Lange"], state="readonly")
-operator_combobox.grid(row=len(fields)+2, column=1, padx=10, pady=5, sticky="w")
+operator_combobox.grid(row=len(fields)+5, column=1, padx=10, pady=5, sticky="w")
 
 # Caliber dropdown (Combobox)
-tk.Label(root, text="Caliber").grid(row=len(fields)+3, column=0, padx=10, pady=5, sticky="e")
+tk.Label(root, text="Caliber").grid(row=len(fields)+6, column=0, padx=10, pady=5, sticky="e")
 calibers = load_calibers()  # Load calibers from file
 caliber_combobox = ttk.Combobox(root, values=calibers, state="readonly")
-caliber_combobox.grid(row=len(fields)+3, column=1, padx=10, pady=5, sticky="w")
+caliber_combobox.grid(row=len(fields)+6, column=1, padx=10, pady=5, sticky="w")
 
 # Input field and button to add a new caliber
-tk.Label(root, text="Add New Caliber").grid(row=len(fields)+4, column=0, padx=10, pady=5, sticky="e")
+tk.Label(root, text="Add New Caliber").grid(row=len(fields)+7, column=0, padx=10, pady=5, sticky="e")
 new_caliber_entry = tk.Entry(root)
-new_caliber_entry.grid(row=len(fields)+4, column=1, padx=10, pady=5, sticky="w")
+new_caliber_entry.grid(row=len(fields)+7, column=1, padx=10, pady=5, sticky="w")
 
 add_caliber_button = tk.Button(root, text="Add Caliber", command=add_caliber)
-add_caliber_button.grid(row=len(fields)+5, column=1, padx=5, pady=5) 
+add_caliber_button.grid(row=len(fields)+8, column=1, padx=5, pady=5) 
 
 # Notes field
-tk.Label(root, text="Notes").grid(row=len(fields)+6, column=0, padx=10, pady=5, sticky="e")
+tk.Label(root, text="Notes").grid(row=len(fields)+9, column=0, padx=10, pady=5, sticky="e")
 notes_entry = tk.Text(root, height=4, width=30)
-notes_entry.grid(row=len(fields)+6, column=1, padx=10, pady=5, sticky="w")
+notes_entry.grid(row=len(fields)+9, column=1, padx=10, pady=5, sticky="w")
 
 # Submit button
 submit_button = tk.Button(root, text="Submit", command=submit_data)
-submit_button.grid(row=len(fields)+7, column=0, columnspan=2, pady=20, padx=20, sticky="ew")
+submit_button.grid(row=len(fields)+10, column=0, columnspan=2, pady=20, padx=20, sticky="ew")
 
 # Add a button for saving to PDF
 save_pdf_button = tk.Button(root, text="Save to PDF", command=save_to_pdf)
-save_pdf_button.grid(row=len(fields)+8, column=0, columnspan=2, pady=5, padx=10)
+save_pdf_button.grid(row=len(fields)+11, column=0, columnspan=2, pady=5, padx=10)
 
 # Start the main event loop
 root.mainloop()
