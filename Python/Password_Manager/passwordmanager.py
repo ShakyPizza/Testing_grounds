@@ -40,35 +40,50 @@ def load_passwords(key):
 def add_password(service, username, password, key):
     """Add a password entry."""
     passwords = load_passwords(key)
-    passwords[service] = {"username": username, "password": password}
+    if service not in passwords:
+        passwords[service] = []  # Initialize as a list for new services
+    elif isinstance(passwords[service], dict):
+        # Convert existing single entry to a list
+        passwords[service] = [passwords[service]]
+    passwords[service].append({"username": username, "password": password})
     save_passwords(passwords, key)
-    print(f"Password for '{service}' added successfully.")
+    print(f"Password for '{service}' has been added.")
 
 def view_password(service, key):
     """View a password entry."""
     passwords = load_passwords(key)
     if service in passwords:
-        entry = passwords[service]
-        print(f"Service: {service}\nUsername: {entry['username']}\nPassword: {entry['password']}")
+        print(f"Service: {service}")
+        for i, entry in enumerate(passwords[service], 1):
+            print(f"{i}. Username: {entry['username']}, Password: {entry['password']}")
     else:
         print(f"No entry found for service '{service}'.")
 
 def list_services(key):
-    """List all services entries."""
+    """List all service entries."""
     passwords = load_passwords(key)
     if passwords:
         for service in passwords.keys():
             print(f"Service: {service}")
     else:
-        print("No services entries found.")
+        print("No entries found.")
 
 def delete_password(service, key):
     """Delete a password entry."""
     passwords = load_passwords(key)
     if service in passwords:
-        del passwords[service]
-        save_passwords(passwords, key)
-        print(f"Password for '{service}' deleted successfully.")
+        print(f"Service: {service}")
+        for i, entry in enumerate(passwords[service], 1):
+            print(f"{i}. Username: {entry['username']}, Password: {entry['password']}")
+        choice = int(input("Choose a number to delete (or 0 to cancel): "))
+        if 0 < choice <= len(passwords[service]):
+            passwords[service].pop(choice - 1)
+            if not passwords[service]:
+                del passwords[service]  # Remove service if no credentials remain
+            save_passwords(passwords, key)
+            print(f"Entry number {choice} for '{service}' has been deleted.")
+        else:
+            print("Invalid choice.")
     else:
         print(f"No entry found for service '{service}'.")
 
@@ -99,7 +114,7 @@ def main():
             delete_password(service, key)
 
         elif choice == "4":
-            print("Printing list of services... \n")
+            print("Listing all services... \n")
             list_services(key)
 
         elif choice == "5":
