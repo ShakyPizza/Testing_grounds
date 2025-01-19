@@ -12,7 +12,7 @@
 # Other files #
 *.key
 passwords.json
-*.xlxs
+*.xlsx
 *.txt
 
 # Packages #
