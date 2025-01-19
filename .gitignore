@@ -12,6 +12,8 @@
 # Other files #
 *.key
 passwords.json
+*.xlxs
+*.txt
 
 # Packages #
 ############
