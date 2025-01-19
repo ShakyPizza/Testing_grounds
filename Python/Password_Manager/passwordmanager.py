@@ -4,41 +4,58 @@ from cryptography.fernet import Fernet
 
 def load_key():
     """Load the encryption key from a file or generate a new one."""
+    print("Loading encryption key...")
     if not os.path.exists("key.key"):
+        print("Key file not found. Generating a new key...")
         key = Fernet.generate_key()
         with open("key.key", "wb") as key_file:
             key_file.write(key)
     else:
+        print("Key file found. Loading key...")
         with open("key.key", "rb") as key_file:
             key = key_file.read()
+    print("Key loaded successfully.")
     return key
 
 def encrypt_data(data, key):
     """Encrypt the data."""
+    print("Encrypting data...")
     f = Fernet(key)
-    return f.encrypt(data.encode())
+    encrypted = f.encrypt(data.encode())
+    print("Data encrypted successfully.")
+    return encrypted
 
 def decrypt_data(data, key):
     """Decrypt the data."""
+    print("Decrypting data...")
     f = Fernet(key)
-    return f.decrypt(data).decode()
+    decrypted = f.decrypt(data).decode()
+    print("Data decrypted successfully.")
+    return decrypted
 
 def save_passwords(passwords, key):
     """Save passwords to an encrypted file."""
+    print("Saving passwords to file...")
     encrypted_data = encrypt_data(json.dumps(passwords), key)
     with open("passwords.json", "wb") as file:
         file.write(encrypted_data)
+    print("Passwords saved successfully.")
 
 def load_passwords(key):
     """Load passwords from an encrypted file."""
+    print("Loading passwords from file...")
     if not os.path.exists("passwords.json"):
+        print("No password file found. Returning empty dictionary.")
         return {}
     with open("passwords.json", "rb") as file:
         encrypted_data = file.read()
-        return json.loads(decrypt_data(encrypted_data, key))
+        passwords = json.loads(decrypt_data(encrypted_data, key))
+    print("Passwords loaded successfully.")
+    return passwords
 
 def add_password(service, username, password, key):
     """Add a password entry."""
+    print(f"Adding password for service: {service}")
     passwords = load_passwords(key)
     if service not in passwords:
         passwords[service] = []  # Initialize as a list for new services
@@ -51,6 +68,7 @@ def add_password(service, username, password, key):
 
 def view_password(service, key):
     """View a password entry."""
+    print(f"Viewing passwords for service: {service}")
     passwords = load_passwords(key)
     if service in passwords:
         print(f"Service: {service}")
@@ -61,6 +79,7 @@ def view_password(service, key):
 
 def list_services(key):
     """List all service entries."""
+    print("Listing all services...")
     passwords = load_passwords(key)
     if passwords:
         for service in passwords.keys():
@@ -70,6 +89,7 @@ def list_services(key):
 
 def delete_password(service, key):
     """Delete a password entry."""
+    print(f"Deleting password for service: {service}")
     passwords = load_passwords(key)
     if service in passwords:
         print(f"Service: {service}")
@@ -88,6 +108,7 @@ def delete_password(service, key):
         print(f"No entry found for service '{service}'.")
 
 def main():
+    print("Starting Password Manager...")
     key = load_key()
     while True:
         print("\nPassword Manager")
@@ -98,6 +119,7 @@ def main():
         print("5. Quit")
         
         choice = input("Enter your choice: ")
+        print(f"User selected option: {choice}")
 
         if choice == "1":
             service = input("Enter the service name: ")
